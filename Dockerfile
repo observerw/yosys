@@ -4,45 +4,46 @@ ARG IMAGE="python:3-slim-buster"
 
 FROM $IMAGE AS base
 
-RUN apt-get update -qq \
- && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
-    ca-certificates \
-    clang \
-    lld \
-    curl \
-    libffi-dev \
-    libreadline-dev \
-    tcl-dev \
-    graphviz \
-    xdot \
- && apt-get autoclean && apt-get clean && apt-get -y autoremove \
- && update-ca-certificates \
- && rm -rf /var/lib/apt/lists
+RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list \
+   && apt-get update -qq \
+   && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
+   ca-certificates \
+   clang \
+   lld \
+   curl \
+   libffi-dev \
+   libreadline-dev \
+   tcl-dev \
+   graphviz \
+   xdot \
+   && apt-get autoclean && apt-get clean && apt-get -y autoremove \
+   && update-ca-certificates \
+   && rm -rf /var/lib/apt/lists
 
 #---
 
 FROM base AS build
 
 RUN apt-get update -qq \
- && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
-    bison \
-    flex \
-    gawk \
-    gcc \
-    git \
-    iverilog \
-    pkg-config \
- && apt-get autoclean && apt-get clean && apt-get -y autoremove \
- && rm -rf /var/lib/apt/lists
+   && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends \
+   bison \
+   flex \
+   gawk \
+   gcc \
+   git \
+   iverilog \
+   pkg-config \
+   && apt-get autoclean && apt-get clean && apt-get -y autoremove \
+   && rm -rf /var/lib/apt/lists
 
 COPY . /yosys
 
 ENV PREFIX /opt/yosys
 
 RUN cd /yosys \
- && make \
- && make install \
- && make test
+   && make \
+   && make install \
+   && make test
 
 #---
 
